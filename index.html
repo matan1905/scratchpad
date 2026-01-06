@@ -14,7 +14,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         :root {
             --bg-primary: #1a1a1a;
             --bg-secondary: #242424;
@@ -27,7 +26,6 @@
             --tab-hover: #383838;
             --close-hover: #ff5f57;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: var(--bg-primary);
@@ -38,7 +36,6 @@
             flex-direction: column;
             overflow: hidden;
         }
-
         .tab-bar {
             display: flex;
             background: var(--bg-secondary);
@@ -49,12 +46,27 @@
             gap: 2px;
             overflow-x: auto;
             overflow-y: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: var(--border) transparent;
         }
-
         .tab-bar::-webkit-scrollbar {
-            height: 0;
+            height: 6px;
         }
-
+        .tab-bar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .tab-bar::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        .tab-bar::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+        .tabs-wrapper {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
         .tab {
             display: flex;
             align-items: center;
@@ -69,18 +81,16 @@
             transition: all 0.15s ease;
             max-width: 180px;
             min-width: 100px;
+            flex-shrink: 0;
         }
-
         .tab:hover {
             background: var(--tab-hover);
             color: var(--text-primary);
         }
-
         .tab.active {
             background: var(--bg-primary);
             color: var(--text-primary);
         }
-
         .tab-title {
             flex: 1;
             text-align: left;
@@ -88,7 +98,18 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
+        .tab-title-input {
+            flex: 1;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-size: 13px;
+            padding: 2px 6px;
+            outline: none;
+            min-width: 60px;
+            font-family: inherit;
+        }
         .tab-close {
             width: 18px;
             height: 18px;
@@ -100,23 +121,19 @@
             transition: all 0.15s ease;
             flex-shrink: 0;
         }
-
         .tab:hover .tab-close,
         .tab.active .tab-close {
             opacity: 0.6;
         }
-
         .tab-close:hover {
             opacity: 1 !important;
             background: var(--close-hover);
             color: white;
         }
-
         .tab-close svg {
             width: 10px;
             height: 10px;
         }
-
         .new-tab-btn {
             width: 34px;
             height: 34px;
@@ -131,36 +148,33 @@
             transition: all 0.15s ease;
             flex-shrink: 0;
             margin-bottom: 4px;
+            position: sticky;
+            right: 0;
+            background: var(--bg-secondary);
         }
-
         .new-tab-btn:hover {
             background: var(--tab-hover);
             color: var(--text-primary);
         }
-
         .new-tab-btn svg {
             width: 16px;
             height: 16px;
         }
-
         .editor-container {
             flex: 1;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
-
         .editor-wrapper {
             flex: 1;
             display: none;
             flex-direction: column;
             overflow: hidden;
         }
-
         .editor-wrapper.active {
             display: flex;
         }
-
         .editor {
             flex: 1;
             width: 100%;
@@ -175,11 +189,9 @@
             resize: none;
             tab-size: 4;
         }
-
         .editor::placeholder {
             color: var(--text-muted);
         }
-
         .status-bar {
             display: flex;
             justify-content: space-between;
@@ -190,12 +202,24 @@
             font-size: 12px;
             color: var(--text-secondary);
         }
-
         .status-left, .status-right {
             display: flex;
             gap: 16px;
         }
-
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4ade80;
+        }
+        .status-dot.offline {
+            background: #f59e0b;
+        }
         .empty-state {
             flex: 1;
             display: flex;
@@ -205,17 +229,14 @@
             color: var(--text-muted);
             gap: 16px;
         }
-
         .empty-state svg {
             width: 48px;
             height: 48px;
             opacity: 0.5;
         }
-
         .empty-state p {
             font-size: 14px;
         }
-
         .empty-state kbd {
             background: var(--bg-tertiary);
             padding: 4px 8px;
@@ -224,7 +245,6 @@
             font-size: 12px;
             border: 1px solid var(--border);
         }
-
         .toast {
             position: fixed;
             bottom: 60px;
@@ -241,12 +261,10 @@
             border: 1px solid var(--border);
             z-index: 1000;
         }
-
         .toast.show {
             opacity: 1;
             transform: translateX(-50%) translateY(0);
         }
-
         .install-prompt {
             position: fixed;
             bottom: 20px;
@@ -262,22 +280,18 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.4);
             z-index: 1000;
         }
-
         .install-prompt.show {
             display: flex;
         }
-
         .install-prompt-text {
             font-size: 14px;
             color: var(--text-primary);
         }
-
         .install-prompt-buttons {
             display: flex;
             gap: 8px;
             justify-content: flex-end;
         }
-
         .install-prompt-btn {
             padding: 8px 16px;
             border-radius: 6px;
@@ -286,35 +300,28 @@
             font-size: 13px;
             transition: all 0.15s ease;
         }
-
         .install-prompt-btn.primary {
             background: var(--accent);
             color: white;
         }
-
         .install-prompt-btn.primary:hover {
             opacity: 0.9;
         }
-
         .install-prompt-btn.secondary {
             background: transparent;
             color: var(--text-secondary);
         }
-
         .install-prompt-btn.secondary:hover {
             color: var(--text-primary);
         }
-
         @media (max-width: 768px) {
             .tab {
                 min-width: 80px;
                 padding: 8px 10px;
             }
-
             .editor {
                 padding: 16px;
             }
-
             .install-prompt {
                 left: 20px;
                 right: 20px;
@@ -326,6 +333,7 @@
 </head>
 <body>
     <div class="tab-bar" id="tabBar">
+        <div class="tabs-wrapper" id="tabsWrapper"></div>
         <button class="new-tab-btn" id="newTabBtn" title="New tab (⌘N)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -333,7 +341,6 @@
             </svg>
         </button>
     </div>
-
     <div class="editor-container" id="editorContainer">
         <div class="empty-state" id="emptyState">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -345,19 +352,20 @@
             <p>Press <kbd>⌘N</kbd> or <kbd>Ctrl+N</kbd> to create a new scratch</p>
         </div>
     </div>
-
     <div class="status-bar">
         <div class="status-left">
             <span id="statusTabs">0 tabs</span>
+            <span class="status-indicator">
+                <span class="status-dot" id="statusDot"></span>
+                <span id="statusOnline">Online</span>
+            </span>
         </div>
         <div class="status-right">
             <span id="statusLines">Ln 1, Col 1</span>
             <span id="statusChars">0 chars</span>
         </div>
     </div>
-
     <div class="toast" id="toast"></div>
-
     <div class="install-prompt" id="installPrompt">
         <div class="install-prompt-text">Install Scratch for quick access and offline use</div>
         <div class="install-prompt-buttons">
@@ -365,8 +373,11 @@
             <button class="install-prompt-btn primary" id="installAccept">Install</button>
         </div>
     </div>
-
     <script>
+        // Cache the full page HTML for offline use
+        const PAGE_CACHE_KEY = 'scratch-page-html';
+        const CACHE_NAME = 'scratch-v2';
+        
         const manifest = {
             name: 'Scratch',
             short_name: 'Scratch',
@@ -385,38 +396,68 @@
                 }
             ]
         };
-
         const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
         const manifestLink = document.createElement('link');
         manifestLink.rel = 'manifest';
         manifestLink.href = URL.createObjectURL(manifestBlob);
         document.head.appendChild(manifestLink);
 
+        // Enhanced service worker with proper offline caching
         const swCode = `
-            const CACHE_NAME = 'scratch-v1';
-            self.addEventListener('install', () => self.skipWaiting());
-            self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+            const CACHE_NAME = 'scratch-v2';
+            
+            self.addEventListener('install', (e) => {
+                self.skipWaiting();
+            });
+            
+            self.addEventListener('activate', (e) => {
+                e.waitUntil(
+                    caches.keys().then(keys => {
+                        return Promise.all(
+                            keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+                        );
+                    }).then(() => clients.claim())
+                );
+            });
+            
             self.addEventListener('fetch', (e) => {
                 if (e.request.method !== 'GET') return;
+                
                 e.respondWith(
-                    fetch(e.request)
-                        .then(r => { 
-                            if (r && r.status === 200) {
-                                const c = r.clone();
-                                caches.open(CACHE_NAME).then(cache => cache.put(e.request, c));
+                    caches.match(e.request).then(cached => {
+                        const fetchPromise = fetch(e.request).then(response => {
+                            if (response && response.status === 200) {
+                                const clone = response.clone();
+                                caches.open(CACHE_NAME).then(cache => {
+                                    cache.put(e.request, clone);
+                                });
                             }
-                            return r;
-                        })
-                        .catch(() => caches.match(e.request))
+                            return response;
+                        }).catch(() => cached);
+                        
+                        return cached || fetchPromise;
+                    })
                 );
             });
         `;
-
+        
         if ('serviceWorker' in navigator) {
             const swBlob = new Blob([swCode], { type: 'application/javascript' });
-            navigator.serviceWorker.register(URL.createObjectURL(swBlob), { 
-                scope: location.href.substring(0, location.href.lastIndexOf('/') + 1) 
-            }).catch(() => {});
+            const swUrl = URL.createObjectURL(swBlob);
+            
+            navigator.serviceWorker.register(swUrl).then(reg => {
+                console.log('Service Worker registered');
+                // Cache the current page
+                if ('caches' in window) {
+                    caches.open(CACHE_NAME).then(cache => {
+                        cache.put(location.href, new Response(document.documentElement.outerHTML, {
+                            headers: { 'Content-Type': 'text/html' }
+                        }));
+                    });
+                }
+            }).catch(err => {
+                console.log('SW registration failed:', err);
+            });
         }
 
         // Random name generator
@@ -428,7 +469,6 @@
             'iron', 'jade', 'kind', 'lunar', 'misty', 'noble', 'pale', 'rusty',
             'silver', 'twin', 'urban', 'vivid', 'wild', 'crimson', 'frosty', 'gentle'
         ];
-
         const nouns = [
             'fox', 'owl', 'bee', 'elk', 'ant', 'bat', 'cat', 'dog',
             'eel', 'fly', 'gnu', 'hen', 'jay', 'koi', 'lion', 'moth',
@@ -437,82 +477,94 @@
             'leaf', 'moon', 'star', 'wave', 'wind', 'peak', 'vale', 'grove',
             'spark', 'dream', 'echo', 'ghost', 'shade', 'thorn', 'brook', 'cliff'
         ];
-
         function generateName() {
             const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
             const noun = nouns[Math.floor(Math.random() * nouns.length)];
             return `${adj}-${noun}`;
         }
-
         class ScratchPad {
             constructor() {
                 this.tabs = [];
                 this.activeTabId = null;
                 this.tabCounter = 0;
                 this.deferredPrompt = null;
-
+                this.isOnline = navigator.onLine;
                 this.tabBar = document.getElementById('tabBar');
+                this.tabsWrapper = document.getElementById('tabsWrapper');
                 this.newTabBtn = document.getElementById('newTabBtn');
                 this.editorContainer = document.getElementById('editorContainer');
                 this.emptyState = document.getElementById('emptyState');
                 this.statusTabs = document.getElementById('statusTabs');
                 this.statusLines = document.getElementById('statusLines');
                 this.statusChars = document.getElementById('statusChars');
+                this.statusDot = document.getElementById('statusDot');
+                this.statusOnline = document.getElementById('statusOnline');
                 this.toast = document.getElementById('toast');
                 this.installPrompt = document.getElementById('installPrompt');
                 this.installAccept = document.getElementById('installAccept');
                 this.installDismiss = document.getElementById('installDismiss');
-
                 this.init();
             }
-
             init() {
                 this.loadFromStorage();
                 this.bindEvents();
                 this.updateEmptyState();
                 this.setupInstallPrompt();
+                this.setupOnlineStatus();
             }
-
+            setupOnlineStatus() {
+                this.updateOnlineStatus();
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    this.updateOnlineStatus();
+                    this.showToast('Back online');
+                });
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    this.updateOnlineStatus();
+                    this.showToast('Working offline - changes saved locally');
+                });
+            }
+            updateOnlineStatus() {
+                if (this.isOnline) {
+                    this.statusDot.classList.remove('offline');
+                    this.statusOnline.textContent = 'Online';
+                } else {
+                    this.statusDot.classList.add('offline');
+                    this.statusOnline.textContent = 'Offline';
+                }
+            }
             setupInstallPrompt() {
                 window.addEventListener('beforeinstallprompt', (e) => {
                     e.preventDefault();
                     this.deferredPrompt = e;
-                    
                     setTimeout(() => {
                         if (this.deferredPrompt && !localStorage.getItem('installDismissed')) {
                             this.installPrompt.classList.add('show');
                         }
                     }, 3000);
                 });
-
                 this.installAccept.addEventListener('click', async () => {
                     if (!this.deferredPrompt) return;
-                    
                     this.deferredPrompt.prompt();
                     const { outcome } = await this.deferredPrompt.userChoice;
-                    
                     if (outcome === 'accepted') {
                         this.showToast('App installed!');
                     }
-                    
                     this.deferredPrompt = null;
                     this.installPrompt.classList.remove('show');
                 });
-
                 this.installDismiss.addEventListener('click', () => {
                     this.installPrompt.classList.remove('show');
                     localStorage.setItem('installDismissed', 'true');
                 });
-
                 window.addEventListener('appinstalled', () => {
                     this.installPrompt.classList.remove('show');
                     this.deferredPrompt = null;
                 });
             }
-
             bindEvents() {
                 this.newTabBtn.addEventListener('click', () => this.createTab());
-
                 document.addEventListener('keydown', (e) => {
                     if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
                         e.preventDefault();
@@ -525,27 +577,22 @@
                         }
                     }
                 });
-
                 window.addEventListener('beforeunload', () => this.saveToStorage());
-                
                 document.addEventListener('visibilitychange', () => {
                     if (document.visibilityState === 'hidden') {
                         this.saveToStorage();
                     }
                 });
             }
-
             createTab(content = '', title = null) {
                 const id = ++this.tabCounter;
                 const tabTitle = title || generateName();
-
                 const tab = {
                     id,
                     title: tabTitle,
                     content,
                     createdAt: Date.now()
                 };
-
                 this.tabs.push(tab);
                 this.renderTab(tab);
                 this.createEditor(tab);
@@ -553,10 +600,15 @@
                 this.updateStatusBar();
                 this.updateEmptyState();
                 this.saveToStorage();
-
+                // Scroll to the new tab
+                setTimeout(() => {
+                    const tabEl = this.tabsWrapper.querySelector(`.tab[data-id="${id}"]`);
+                    if (tabEl) {
+                        tabEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                    }
+                }, 0);
                 return tab;
             }
-
             renderTab(tab) {
                 const tabEl = document.createElement('button');
                 tabEl.className = 'tab';
@@ -570,41 +622,79 @@
                         </svg>
                     </span>
                 `;
-
                 tabEl.addEventListener('click', (e) => {
-                    if (!e.target.closest('.tab-close')) {
+                    if (!e.target.closest('.tab-close') && !e.target.closest('.tab-title-input')) {
                         this.switchTab(tab.id);
                     }
                 });
-
+                // Double click to rename
+                const titleEl = tabEl.querySelector('.tab-title');
+                titleEl.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    this.startRenameTab(tab.id);
+                });
                 tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
                     e.stopPropagation();
                     this.closeTab(tab.id);
                 });
-
-                this.tabBar.insertBefore(tabEl, this.newTabBtn);
+                this.tabsWrapper.appendChild(tabEl);
             }
-
+            startRenameTab(tabId) {
+                const tab = this.tabs.find(t => t.id === tabId);
+                if (!tab) return;
+                const tabEl = this.tabsWrapper.querySelector(`.tab[data-id="${tabId}"]`);
+                if (!tabEl) return;
+                const titleEl = tabEl.querySelector('.tab-title');
+                if (!titleEl || titleEl.classList.contains('editing')) return;
+                titleEl.classList.add('editing');
+                const currentTitle = tab.title;
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'tab-title-input';
+                input.value = currentTitle;
+                
+                const finishRename = (save = true) => {
+                    const newTitle = input.value.trim();
+                    if (save && newTitle && newTitle !== currentTitle) {
+                        tab.title = newTitle;
+                        this.saveToStorage();
+                    }
+                    titleEl.textContent = tab.title;
+                    titleEl.classList.remove('editing');
+                };
+                input.addEventListener('blur', () => finishRename(true));
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        input.blur();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        finishRename(false);
+                    }
+                    e.stopPropagation();
+                });
+                input.addEventListener('click', (e) => e.stopPropagation());
+                titleEl.textContent = '';
+                titleEl.appendChild(input);
+                input.focus();
+                input.select();
+            }
             createEditor(tab) {
                 const wrapper = document.createElement('div');
                 wrapper.className = 'editor-wrapper';
                 wrapper.dataset.id = tab.id;
-
                 const editor = document.createElement('textarea');
                 editor.className = 'editor';
                 editor.placeholder = 'Start typing...';
                 editor.value = tab.content;
                 editor.spellcheck = false;
-
                 editor.addEventListener('input', () => {
                     tab.content = editor.value;
                     this.updateStatusBar();
                     this.debouncedSave();
                 });
-
                 editor.addEventListener('keyup', () => this.updateCursorPosition(editor));
                 editor.addEventListener('click', () => this.updateCursorPosition(editor));
-                
                 editor.addEventListener('keydown', (e) => {
                     if (e.key === 'Tab') {
                         e.preventDefault();
@@ -616,22 +706,17 @@
                         this.debouncedSave();
                     }
                 });
-
                 wrapper.appendChild(editor);
                 this.editorContainer.appendChild(wrapper);
             }
-
             switchTab(id) {
                 this.activeTabId = id;
-
-                this.tabBar.querySelectorAll('.tab').forEach(t => {
+                this.tabsWrapper.querySelectorAll('.tab').forEach(t => {
                     t.classList.toggle('active', parseInt(t.dataset.id) === id);
                 });
-
                 this.editorContainer.querySelectorAll('.editor-wrapper').forEach(w => {
                     w.classList.toggle('active', parseInt(w.dataset.id) === id);
                 });
-
                 const wrapper = this.editorContainer.querySelector(`.editor-wrapper[data-id="${id}"]`);
                 if (wrapper) {
                     const editor = wrapper.querySelector('.editor');
@@ -639,20 +724,20 @@
                     this.updateCursorPosition(editor);
                     this.updateStatusBar();
                 }
+                // Scroll active tab into view
+                const activeTab = this.tabsWrapper.querySelector(`.tab[data-id="${id}"]`);
+                if (activeTab) {
+                    activeTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+                }
             }
-
             closeTab(id) {
                 const index = this.tabs.findIndex(t => t.id === id);
                 if (index === -1) return;
-
                 this.tabs.splice(index, 1);
-
-                const tabEl = this.tabBar.querySelector(`.tab[data-id="${id}"]`);
+                const tabEl = this.tabsWrapper.querySelector(`.tab[data-id="${id}"]`);
                 if (tabEl) tabEl.remove();
-
                 const wrapper = this.editorContainer.querySelector(`.editor-wrapper[data-id="${id}"]`);
                 if (wrapper) wrapper.remove();
-
                 if (this.activeTabId === id) {
                     const nextTab = this.tabs[index] || this.tabs[index - 1];
                     if (nextTab) {
@@ -661,12 +746,10 @@
                         this.activeTabId = null;
                     }
                 }
-
                 this.updateStatusBar();
                 this.updateEmptyState();
                 this.saveToStorage();
             }
-
             updateCursorPosition(editor) {
                 const text = editor.value.substring(0, editor.selectionStart);
                 const lines = text.split('\n');
@@ -674,11 +757,9 @@
                 const col = lines[lines.length - 1].length + 1;
                 this.statusLines.textContent = `Ln ${line}, Col ${col}`;
             }
-
             updateStatusBar() {
                 const count = this.tabs.length;
                 this.statusTabs.textContent = `${count} tab${count !== 1 ? 's' : ''}`;
-
                 const activeTab = this.tabs.find(t => t.id === this.activeTabId);
                 if (activeTab) {
                     const chars = activeTab.content.length;
@@ -688,11 +769,9 @@
                     this.statusLines.textContent = 'Ln 1, Col 1';
                 }
             }
-
             updateEmptyState() {
                 this.emptyState.style.display = this.tabs.length === 0 ? 'flex' : 'none';
             }
-
             saveToStorage() {
                 const data = {
                     tabs: this.tabs,
@@ -705,7 +784,6 @@
                     console.error('Failed to save:', e);
                 }
             }
-
             loadFromStorage() {
                 try {
                     const data = JSON.parse(localStorage.getItem('scratchpad'));
@@ -726,11 +804,9 @@
                     console.error('Failed to load from storage:', e);
                 }
             }
-
             debouncedSave = this.debounce(() => {
                 this.saveToStorage();
             }, 300);
-
             debounce(func, wait) {
                 let timeout;
                 return function executedFunction(...args) {
@@ -742,7 +818,6 @@
                     timeout = setTimeout(later, wait);
                 };
             }
-
             showToast(message) {
                 this.toast.textContent = message;
                 this.toast.classList.add('show');
@@ -750,14 +825,12 @@
                     this.toast.classList.remove('show');
                 }, 2000);
             }
-
             escapeHtml(text) {
                 const div = document.createElement('div');
                 div.textContent = text;
                 return div.innerHTML;
             }
         }
-
         const app = new ScratchPad();
     </script>
 </body>
