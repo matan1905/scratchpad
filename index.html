@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch</title>
+    <meta name="description" content="A minimal scratch pad for quick notes and thoughts">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a1a">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #242424;
+            --bg-tertiary: #2d2d2d;
+            --text-primary: #e4e4e4;
+            --text-secondary: #888;
+            --text-muted: #555;
+            --accent: #6b9fff;
+            --border: #333;
+            --tab-hover: #383838;
+            --close-hover: #ff5f57;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .tab-bar {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            min-height: 42px;
+            align-items: flex-end;
+            padding: 8px 8px 0;
+            gap: 2px;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .tab-bar::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            color: var(--text-secondary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            max-width: 180px;
+            min-width: 100px;
+        }
+
+        .tab:hover {
+            background: var(--tab-hover);
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .tab-title {
+            flex: 1;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .tab-close {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .tab:hover .tab-close,
+        .tab.active .tab-close {
+            opacity: 0.6;
+        }
+
+        .tab-close:hover {
+            opacity: 1 !important;
+            background: var(--close-hover);
+            color: white;
+        }
+
+        .tab-close svg {
+            width: 10px;
+            height: 10px;
+        }
+
+        .new-tab-btn {
+            width: 34px;
+            height: 34px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+            margin-bottom: 4px;
+        }
+
+        .new-tab-btn:hover {
+            background: var(--tab-hover);
+            color: var(--text-primary);
+        }
+
+        .new-tab-btn svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-wrapper {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .editor-wrapper.active {
+            display: flex;
+        }
+
+        .editor {
+            flex: 1;
+            width: 100%;
+            background: var(--bg-primary);
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 24px 32px;
+            resize: none;
+            tab-size: 4;
+        }
+
+        .editor::placeholder {
+            color: var(--text-muted);
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 16px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .status-left, .status-right {
+            display: flex;
+            gap: 16px;
+        }
+
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            gap: 16px;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .empty-state kbd {
+            background: var(--bg-tertiary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            border: 1px solid var(--border);
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            max-width: 300px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            z-index: 1000;
+        }
+
+        .install-prompt.show {
+            display: flex;
+        }
+
+        .install-prompt-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+
+        .install-prompt-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .install-prompt-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.15s ease;
+        }
+
+        .install-prompt-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .install-prompt-btn.primary:hover {
+            opacity: 0.9;
+        }
+
+        .install-prompt-btn.secondary {
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .install-prompt-btn.secondary:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            .tab {
+                min-width: 80px;
+                padding: 8px 10px;
+            }
+
+            .editor {
+                padding: 16px;
+            }
+
+            .install-prompt {
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tab-bar" id="tabBar">
+        <button class="new-tab-btn" id="newTabBtn" title="New tab (⌘N)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        </button>
+    </div>
+
+    <div class="editor-container" id="editorContainer">
+        <div class="empty-state" id="emptyState">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <p>Press <kbd>⌘N</kbd> or <kbd>Ctrl+N</kbd> to create a new scratch</p>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-left">
+            <span id="statusTabs">0 tabs</span>
+        </div>
+        <div class="status-right">
+            <span id="statusLines">Ln 1, Col 1</span>
+            <span id="statusChars">0 chars</span>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-prompt-text">Install Scratch for quick access and offline use</div>
+        <div class="install-prompt-buttons">
+            <button class="install-prompt-btn secondary" id="installDismiss">Not now</button>
+            <button class="install-prompt-btn primary" id="installAccept">Install</button>
+        </div>
+    </div>
+
+    <script>
+        const manifest = {
+            name: 'Scratch',
+            short_name: 'Scratch',
+            description: 'A minimal scratch pad for quick notes and thoughts',
+            start_url: location.href.split('?')[0],
+            scope: location.href.substring(0, location.href.lastIndexOf('/') + 1),
+            display: 'standalone',
+            background_color: '#1a1a1a',
+            theme_color: '#1a1a1a',
+            icons: [
+                {
+                    src: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%231a1a1a" width="100" height="100" rx="20"/><text x="50" y="68" text-anchor="middle" fill="%236b9fff" font-size="50" font-family="system-ui" font-weight="600">S</text></svg>',
+                    sizes: 'any',
+                    type: 'image/svg+xml',
+                    purpose: 'any maskable'
+                }
+            ]
+        };
+
+        const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+        const manifestLink = document.createElement('link');
+        manifestLink.rel = 'manifest';
+        manifestLink.href = URL.createObjectURL(manifestBlob);
+        document.head.appendChild(manifestLink);
+
+        const swCode = `
+            const CACHE_NAME = 'scratch-v1';
+            self.addEventListener('install', () => self.skipWaiting());
+            self.addEventListener('activate', (e) => e.waitUntil(clients.claim()));
+            self.addEventListener('fetch', (e) => {
+                if (e.request.method !== 'GET') return;
+                e.respondWith(
+                    fetch(e.request)
+                        .then(r => { 
+                            if (r && r.status === 200) {
+                                const c = r.clone();
+                                caches.open(CACHE_NAME).then(cache => cache.put(e.request, c));
+                            }
+                            return r;
+                        })
+                        .catch(() => caches.match(e.request))
+                );
+            });
+        `;
+
+        if ('serviceWorker' in navigator) {
+            const swBlob = new Blob([swCode], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(swBlob), { 
+                scope: location.href.substring(0, location.href.lastIndexOf('/') + 1) 
+            }).catch(() => {});
+        }
+
+        // Random name generator
+        const adjectives = [
+            'swift', 'quiet', 'bold', 'calm', 'dark', 'eager', 'fair', 'glad',
+            'hazy', 'icy', 'jolly', 'keen', 'lazy', 'merry', 'neat', 'odd',
+            'proud', 'quick', 'rare', 'shy', 'tiny', 'vast', 'warm', 'young',
+            'zesty', 'amber', 'blue', 'coral', 'dusty', 'fresh', 'golden', 'hidden',
+            'iron', 'jade', 'kind', 'lunar', 'misty', 'noble', 'pale', 'rusty',
+            'silver', 'twin', 'urban', 'vivid', 'wild', 'crimson', 'frosty', 'gentle'
+        ];
+
+        const nouns = [
+            'fox', 'owl', 'bee', 'elk', 'ant', 'bat', 'cat', 'dog',
+            'eel', 'fly', 'gnu', 'hen', 'jay', 'koi', 'lion', 'moth',
+            'newt', 'orca', 'puma', 'quail', 'ram', 'seal', 'toad', 'vole',
+            'wolf', 'yak', 'cloud', 'stone', 'river', 'flame', 'storm', 'frost',
+            'leaf', 'moon', 'star', 'wave', 'wind', 'peak', 'vale', 'grove',
+            'spark', 'dream', 'echo', 'ghost', 'shade', 'thorn', 'brook', 'cliff'
+        ];
+
+        function generateName() {
+            const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
+            const noun = nouns[Math.floor(Math.random() * nouns.length)];
+            return `${adj}-${noun}`;
+        }
+
+        class ScratchPad {
+            constructor() {
+                this.tabs = [];
+                this.activeTabId = null;
+                this.tabCounter = 0;
+                this.deferredPrompt = null;
+
+                this.tabBar = document.getElementById('tabBar');
+                this.newTabBtn = document.getElementById('newTabBtn');
+                this.editorContainer = document.getElementById('editorContainer');
+                this.emptyState = document.getElementById('emptyState');
+                this.statusTabs = document.getElementById('statusTabs');
+                this.statusLines = document.getElementById('statusLines');
+                this.statusChars = document.getElementById('statusChars');
+                this.toast = document.getElementById('toast');
+                this.installPrompt = document.getElementById('installPrompt');
+                this.installAccept = document.getElementById('installAccept');
+                this.installDismiss = document.getElementById('installDismiss');
+
+                this.init();
+            }
+
+            init() {
+                this.loadFromStorage();
+                this.bindEvents();
+                this.updateEmptyState();
+                this.setupInstallPrompt();
+            }
+
+            setupInstallPrompt() {
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    this.deferredPrompt = e;
+                    
+                    setTimeout(() => {
+                        if (this.deferredPrompt && !localStorage.getItem('installDismissed')) {
+                            this.installPrompt.classList.add('show');
+                        }
+                    }, 3000);
+                });
+
+                this.installAccept.addEventListener('click', async () => {
+                    if (!this.deferredPrompt) return;
+                    
+                    this.deferredPrompt.prompt();
+                    const { outcome } = await this.deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        this.showToast('App installed!');
+                    }
+                    
+                    this.deferredPrompt = null;
+                    this.installPrompt.classList.remove('show');
+                });
+
+                this.installDismiss.addEventListener('click', () => {
+                    this.installPrompt.classList.remove('show');
+                    localStorage.setItem('installDismissed', 'true');
+                });
+
+                window.addEventListener('appinstalled', () => {
+                    this.installPrompt.classList.remove('show');
+                    this.deferredPrompt = null;
+                });
+            }
+
+            bindEvents() {
+                this.newTabBtn.addEventListener('click', () => this.createTab());
+
+                document.addEventListener('keydown', (e) => {
+                    if ((e.metaKey || e.ctrlKey) && e.key === 'n') {
+                        e.preventDefault();
+                        this.createTab();
+                    }
+                    if ((e.metaKey || e.ctrlKey) && e.key === 'w') {
+                        e.preventDefault();
+                        if (this.activeTabId) {
+                            this.closeTab(this.activeTabId);
+                        }
+                    }
+                });
+
+                window.addEventListener('beforeunload', () => this.saveToStorage());
+                
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'hidden') {
+                        this.saveToStorage();
+                    }
+                });
+            }
+
+            createTab(content = '', title = null) {
+                const id = ++this.tabCounter;
+                const tabTitle = title || generateName();
+
+                const tab = {
+                    id,
+                    title: tabTitle,
+                    content,
+                    createdAt: Date.now()
+                };
+
+                this.tabs.push(tab);
+                this.renderTab(tab);
+                this.createEditor(tab);
+                this.switchTab(id);
+                this.updateStatusBar();
+                this.updateEmptyState();
+                this.saveToStorage();
+
+                return tab;
+            }
+
+            renderTab(tab) {
+                const tabEl = document.createElement('button');
+                tabEl.className = 'tab';
+                tabEl.dataset.id = tab.id;
+                tabEl.innerHTML = `
+                    <span class="tab-title">${this.escapeHtml(tab.title)}</span>
+                    <span class="tab-close">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </span>
+                `;
+
+                tabEl.addEventListener('click', (e) => {
+                    if (!e.target.closest('.tab-close')) {
+                        this.switchTab(tab.id);
+                    }
+                });
+
+                tabEl.querySelector('.tab-close').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.closeTab(tab.id);
+                });
+
+                this.tabBar.insertBefore(tabEl, this.newTabBtn);
+            }
+
+            createEditor(tab) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'editor-wrapper';
+                wrapper.dataset.id = tab.id;
+
+                const editor = document.createElement('textarea');
+                editor.className = 'editor';
+                editor.placeholder = 'Start typing...';
+                editor.value = tab.content;
+                editor.spellcheck = false;
+
+                editor.addEventListener('input', () => {
+                    tab.content = editor.value;
+                    this.updateStatusBar();
+                    this.debouncedSave();
+                });
+
+                editor.addEventListener('keyup', () => this.updateCursorPosition(editor));
+                editor.addEventListener('click', () => this.updateCursorPosition(editor));
+                
+                editor.addEventListener('keydown', (e) => {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = editor.selectionStart;
+                        const end = editor.selectionEnd;
+                        editor.value = editor.value.substring(0, start) + '\t' + editor.value.substring(end);
+                        editor.selectionStart = editor.selectionEnd = start + 1;
+                        tab.content = editor.value;
+                        this.debouncedSave();
+                    }
+                });
+
+                wrapper.appendChild(editor);
+                this.editorContainer.appendChild(wrapper);
+            }
+
+            switchTab(id) {
+                this.activeTabId = id;
+
+                this.tabBar.querySelectorAll('.tab').forEach(t => {
+                    t.classList.toggle('active', parseInt(t.dataset.id) === id);
+                });
+
+                this.editorContainer.querySelectorAll('.editor-wrapper').forEach(w => {
+                    w.classList.toggle('active', parseInt(w.dataset.id) === id);
+                });
+
+                const wrapper = this.editorContainer.querySelector(`.editor-wrapper[data-id="${id}"]`);
+                if (wrapper) {
+                    const editor = wrapper.querySelector('.editor');
+                    editor.focus();
+                    this.updateCursorPosition(editor);
+                    this.updateStatusBar();
+                }
+            }
+
+            closeTab(id) {
+                const index = this.tabs.findIndex(t => t.id === id);
+                if (index === -1) return;
+
+                this.tabs.splice(index, 1);
+
+                const tabEl = this.tabBar.querySelector(`.tab[data-id="${id}"]`);
+                if (tabEl) tabEl.remove();
+
+                const wrapper = this.editorContainer.querySelector(`.editor-wrapper[data-id="${id}"]`);
+                if (wrapper) wrapper.remove();
+
+                if (this.activeTabId === id) {
+                    const nextTab = this.tabs[index] || this.tabs[index - 1];
+                    if (nextTab) {
+                        this.switchTab(nextTab.id);
+                    } else {
+                        this.activeTabId = null;
+                    }
+                }
+
+                this.updateStatusBar();
+                this.updateEmptyState();
+                this.saveToStorage();
+            }
+
+            updateCursorPosition(editor) {
+                const text = editor.value.substring(0, editor.selectionStart);
+                const lines = text.split('\n');
+                const line = lines.length;
+                const col = lines[lines.length - 1].length + 1;
+                this.statusLines.textContent = `Ln ${line}, Col ${col}`;
+            }
+
+            updateStatusBar() {
+                const count = this.tabs.length;
+                this.statusTabs.textContent = `${count} tab${count !== 1 ? 's' : ''}`;
+
+                const activeTab = this.tabs.find(t => t.id === this.activeTabId);
+                if (activeTab) {
+                    const chars = activeTab.content.length;
+                    this.statusChars.textContent = `${chars} char${chars !== 1 ? 's' : ''}`;
+                } else {
+                    this.statusChars.textContent = '0 chars';
+                    this.statusLines.textContent = 'Ln 1, Col 1';
+                }
+            }
+
+            updateEmptyState() {
+                this.emptyState.style.display = this.tabs.length === 0 ? 'flex' : 'none';
+            }
+
+            saveToStorage() {
+                const data = {
+                    tabs: this.tabs,
+                    activeTabId: this.activeTabId,
+                    tabCounter: this.tabCounter
+                };
+                try {
+                    localStorage.setItem('scratchpad', JSON.stringify(data));
+                } catch (e) {
+                    console.error('Failed to save:', e);
+                }
+            }
+
+            loadFromStorage() {
+                try {
+                    const data = JSON.parse(localStorage.getItem('scratchpad'));
+                    if (data && data.tabs && data.tabs.length > 0) {
+                        this.tabCounter = data.tabCounter || 0;
+                        data.tabs.forEach(tab => {
+                            this.tabs.push(tab);
+                            this.renderTab(tab);
+                            this.createEditor(tab);
+                        });
+                        if (data.activeTabId && this.tabs.find(t => t.id === data.activeTabId)) {
+                            this.switchTab(data.activeTabId);
+                        } else if (this.tabs.length > 0) {
+                            this.switchTab(this.tabs[0].id);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to load from storage:', e);
+                }
+            }
+
+            debouncedSave = this.debounce(() => {
+                this.saveToStorage();
+            }, 300);
+
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+
+            showToast(message) {
+                this.toast.textContent = message;
+                this.toast.classList.add('show');
+                setTimeout(() => {
+                    this.toast.classList.remove('show');
+                }, 2000);
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        const app = new ScratchPad();
+    </script>
+</body>
+</html>
