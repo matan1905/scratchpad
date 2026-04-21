@@ -3,6 +3,7 @@
   import TabBar from './components/TabBar.svelte';
   import Editor from './components/Editor.svelte';
   import { tabs, activeId, initTabs, newScratchTab } from './stores/tabs';
+  import { cursor } from './stores/cursor';
   import { initFileHandlers, saveActive, pickAndOpenFile, closeActive } from './lib/fileHandlers';
 
   let online = $state(navigator.onLine);
@@ -26,7 +27,6 @@
 
   const active = $derived($tabs.find((t) => t.id === $activeId) ?? null);
   const charCount = $derived(active?.content.length ?? 0);
-  const lineCount = $derived(active ? active.content.split('\n').length : 0);
 </script>
 
 <TabBar />
@@ -51,7 +51,7 @@
   </div>
   <div class="right">
     {#if active}
-      <span>{lineCount} lines</span>
+      <span>Ln {$cursor.line}, Col {$cursor.col}</span>
       <span>{charCount} chars</span>
       {#if active.dirty}<span class="dirty">● unsaved</span>{/if}
     {/if}

@@ -9,6 +9,7 @@
   import { bidiAutoLines } from '../lib/direction';
   import type { Tab } from '../stores/tabs';
   import { updateContent } from '../stores/tabs';
+  import { cursor } from '../stores/cursor';
 
   let { tab }: { tab: Tab } = $props();
 
@@ -86,6 +87,11 @@
         EditorView.updateListener.of((u) => {
           if (u.docChanged) {
             updateContent(tab.id, u.state.doc.toString());
+          }
+          if (u.docChanged || u.selectionSet) {
+            const head = u.state.selection.main.head;
+            const line = u.state.doc.lineAt(head);
+            cursor.set({ line: line.number, col: head - line.from + 1 });
           }
         }),
       ],
