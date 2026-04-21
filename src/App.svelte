@@ -59,7 +59,7 @@
 </div>
 
 <style>
-  .editor-area { flex: 1; display: flex; overflow: hidden; }
+  .editor-area { flex: 1; display: flex; overflow: hidden; padding: 15px 20px 0; }
   .empty {
     flex: 1;
     display: flex;
