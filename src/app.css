@@ -42,14 +42,9 @@ kbd {
   font-size: 14px;
 }
 .cm-editor.cm-focused { outline: none; }
-.cm-scroller { font-family: inherit; line-height: 1.6; padding: 8px 0; }
+.cm-scroller { font-family: inherit; line-height: 1.6; padding: 16px 0; }
 .cm-content { caret-color: var(--accent); padding: 0 24px; }
-.cm-gutters {
-  background: var(--bg-primary);
-  color: var(--text-muted);
-  border-right: 1px solid var(--border);
-}
-.cm-activeLine { background: rgba(255,255,255,0.02); }
-.cm-activeLineGutter { background: transparent; color: var(--text-secondary); }
-.cm-selectionBackground, ::selection { background: #2d4a7a !important; }
-.cm-cursor { border-left-color: var(--accent); }
+.cm-selectionBackground, .cm-editor ::selection { background: #2d4a7a !important; }
+.cm-editor .cm-cursor, .cm-editor .cm-dropCursor { border-left-color: var(--accent); }
+.cm-focused .cm-selectionBackground { background: #2d4a7a !important; }
+.cm-matchingBracket { background: rgba(107,159,255,0.15) !important; color: inherit !important; outline: none; }

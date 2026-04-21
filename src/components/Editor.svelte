@@ -1,9 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { EditorState, Compartment } from '@codemirror/state';
-  import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter, drawSelection } from '@codemirror/view';
+  import { EditorView, keymap, drawSelection } from '@codemirror/view';
   import { defaultKeymap, history, historyKeymap, indentWithTab } from '@codemirror/commands';
-  import { bracketMatching, indentOnInput, foldGutter, foldKeymap } from '@codemirror/language';
+  import { bracketMatching, indentOnInput, syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+  import { tags as t } from '@lezer/highlight';
   import { languageFromFilename, isProseFile } from '../lib/language';
   import { bidiAutoLines } from '../lib/direction';
   import type { Tab } from '../stores/tabs';
@@ -17,6 +18,29 @@
   const dirCompartment = new Compartment();
 
   let lastTabId: string | null = null;
+
+  const darkHighlight = HighlightStyle.define([
+    { tag: t.keyword, color: '#c586c0' },
+    { tag: [t.name, t.deleted, t.character, t.macroName], color: '#e4e4e4' },
+    { tag: [t.propertyName], color: '#9cdcfe' },
+    { tag: [t.function(t.variableName), t.labelName], color: '#dcdcaa' },
+    { tag: [t.color, t.constant(t.name), t.standard(t.name)], color: '#4fc1ff' },
+    { tag: [t.definition(t.name), t.separator], color: '#e4e4e4' },
+    { tag: [t.className], color: '#4ec9b0' },
+    { tag: [t.number, t.changed, t.annotation, t.modifier, t.self, t.namespace], color: '#b5cea8' },
+    { tag: [t.typeName], color: '#4ec9b0' },
+    { tag: [t.operator, t.operatorKeyword], color: '#c586c0' },
+    { tag: [t.url, t.escape, t.regexp, t.link], color: '#d7ba7d' },
+    { tag: [t.meta, t.comment], color: '#6a9955', fontStyle: 'italic' },
+    { tag: t.tagName, color: '#569cd6' },
+    { tag: t.strong, fontWeight: 'bold' },
+    { tag: t.emphasis, fontStyle: 'italic' },
+    { tag: t.link, textDecoration: 'underline' },
+    { tag: t.heading, fontWeight: 'bold', color: '#6b9fff' },
+    { tag: [t.atom, t.bool, t.special(t.variableName)], color: '#569cd6' },
+    { tag: [t.processingInstruction, t.string, t.inserted], color: '#ce9178' },
+    { tag: t.invalid, color: '#ff5f57' },
+  ]);
 
   function buildLangExt(t: Tab) {
     const ext = t.filename ? languageFromFilename(t.filename) : null;
@@ -50,16 +74,13 @@
     const startState = EditorState.create({
       doc: tab.content,
       extensions: [
-        lineNumbers(),
-        highlightActiveLine(),
-        highlightActiveLineGutter(),
         drawSelection(),
         history(),
         bracketMatching(),
         indentOnInput(),
-        foldGutter(),
+        syntaxHighlighting(darkHighlight),
         EditorView.lineWrapping,
-        keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap, indentWithTab]),
+        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
         langCompartment.of(buildLangExt(tab)),
         dirCompartment.of(buildDirExt(tab)),
         EditorView.updateListener.of((u) => {
